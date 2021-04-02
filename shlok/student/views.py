@@ -1,20 +1,33 @@
 from django.shortcuts import render,HttpResponse
 from student.models import Student
+from student.models import Address
 
-def save(request,name,address,age,T_mark):
-    stud=Student(name=name,address=address,age=age,T_mark=T_mark)
+def save(request,id,name,age,T_mark):
+    stud=Student(id=id,name=name,age=age,T_mark=T_mark)
     stud.save()
+    return HttpResponse("saved secessfully")
+
+#saving address of student by using id as refrence
+def saveAddress(request,id,address):
+    stud=Student.objects.get(id=id)
+    studadd=Address(stud=stud,address=address)
+    studadd.save()
     return HttpResponse("saved secessfully")
 
 
 def get_allStudent(request):
     stud=Student.objects.all()
+    add = Address.objects.all()
+    a=-1
     n=[]
     for i in stud:
-        n.append({'name':i.name,
-                  'Address':i.address,
+        a=a+1
+        n.append({ 'ID':i.id,
+                 'name':i.name,
                  'Age':i.age,
-                  'Total mark':i.T_mark}
+                  'Total mark':i.T_mark,
+                  'Address':add[a].address,
+                 }
                  )
 
     return HttpResponse(n)
@@ -23,11 +36,15 @@ def get_allStudent(request):
 
 def getStudent(request,name):
     stud=Student.objects.get(name=name)
+    add=Address.objects.all()[stud.id-1].address
+
+    #add=stud.addr_set.get(id=stud.id)
     n=[]
-    n.append({'name': stud.name,
-              'Address': stud.address,
+    n.append({'ID':stud.id,
+            'name': stud.name,
               'Age': stud.age,
-              'Total mark': stud.T_mark}
+              'Total mark': stud.T_mark,
+              'Address':add}
              )
 
     return HttpResponse(n)
