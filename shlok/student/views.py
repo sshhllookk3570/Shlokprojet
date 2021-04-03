@@ -1,6 +1,10 @@
 from django.shortcuts import render,HttpResponse
-from student.models import Student
-from student.models import Address
+from student.models import Student,Address
+from rest_framework.generics import ListAPIView
+from rest_framework.views import APIView
+from .serializer import StudentSerializer,AddressSerializer
+
+#from shstudent.models import Address
 
 def save(request,id,name,age,T_mark):
     stud=Student(id=id,name=name,age=age,T_mark=T_mark)
@@ -68,6 +72,33 @@ def percentage(request):
 
 
 
-def hello(request):
-    return HttpResponse("hi hello")
-#,i.address,i.age,i.T_marks
+#serializer methods
+
+class StudentView(ListAPIView):
+    queryset=Student.objects.all()
+    serializer_class=StudentSerializer
+
+
+class AddressView(APIView):
+
+    def post(self, request):
+        st=Student.objects.get(name='shlokr')
+        return HttpResponse(st.addr_set.all()[0].address)
+
+
+    def get( self,request):
+        st=Student.objects.get(name='shlokr')
+        return HttpResponse(st.addr_set.all()[0].address)
+
+    def put(self,request,id,address):
+        studt = Student.objects.get(id=id)
+        studadd = Address(stud=studt, address=address)
+        studadd.save()
+        return HttpResponse("saved secessfully")
+
+    def delete(self,request,id):
+        st = Student.objects.get(id=id)
+        st.delete()
+        return HttpResponse("succesfull")
+
+
